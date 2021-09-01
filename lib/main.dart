@@ -2,16 +2,16 @@ import 'package:async_redux/async_redux.dart';
 import 'package:async_redux_ex/action.dart';
 import 'package:flutter/material.dart';
 
-late Store<int> store;
+late Store<Counter> store;
 void main() {
-  store = Store<int>(initialState: 0);
+  store = Store<Counter>(initialState: Counter(counter: 0));
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StoreProvider<int>(
+    return StoreProvider<Counter>(
       store: store,
       child: MaterialApp(
         home: MyHomePageConnector(),
@@ -25,7 +25,7 @@ class MyHomePageConnector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<int, ViewModel>(
+    return StoreConnector<Counter, ViewModel>(
       vm: () => _VmFactory(this),
       builder: (BuildContext context, ViewModel vm) => MyHomePage(
         counter: vm.counter,
@@ -36,7 +36,7 @@ class MyHomePageConnector extends StatelessWidget {
 }
 
 // View-Model
-class _VmFactory extends VmFactory<int, MyHomePageConnector> {
+class _VmFactory extends VmFactory<Counter, MyHomePageConnector> {
   _VmFactory(widget) : super(widget);
   @override
   Vm fromStore() {
@@ -52,7 +52,7 @@ class _VmFactory extends VmFactory<int, MyHomePageConnector> {
 }
 
 class ViewModel extends Vm {
-  final int counter;
+  final Counter counter;
   final VoidCallback onIncrement;
 
   ViewModel({required this.counter, required this.onIncrement})
@@ -61,7 +61,7 @@ class ViewModel extends Vm {
 
 // View
 class MyHomePage extends StatelessWidget {
-  final int counter;
+  final Counter counter;
   final VoidCallback onIncrement;
   const MyHomePage({Key? key, required this.counter, required this.onIncrement})
       : super(key: key);
@@ -81,15 +81,15 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
-class IncrementAction extends ReduxAction<int> {
+class IncrementAction extends ReduxAction<Counter> {
   final int amount;
 
   IncrementAction({required this.amount});
 
   @override
-  Future<int?> reduce() async {
+  Future<Counter?> reduce() async {
     await Future.delayed(Duration(seconds: 5));
-    return state + amount;
+    return state.copyWith(counter: state.increment(amount));
   }
 
   @override
